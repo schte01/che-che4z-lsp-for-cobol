@@ -16,7 +16,7 @@
 package com.broadcom.lsp.cobol.core.model.variables;
 
 import com.broadcom.lsp.cobol.core.model.Locality;
-import lombok.AllArgsConstructor;
+import com.broadcom.lsp.cobol.core.preprocessor.delegates.util.VariableUtils;
 import lombok.Value;
 
 /**
@@ -25,10 +25,24 @@ import lombok.Value;
  * explicitly defined value; both as Strings. They cannot produce a structure in any way.
  */
 @Value
-@AllArgsConstructor
 public class IndependentDataItem implements Variable {
   private String name;
+  private String qualifier;
+  private Locality definition;
   private String picClause;
   private String value;
-  private Locality definition;
+
+  @Override
+  public Variable rename(String renameItemName) {
+    return new IndependentDataItem(
+        name,
+        VariableUtils.renameQualifier(qualifier, renameItemName),
+        definition,
+        picClause,
+        value);
+  }
+  @Override
+  public boolean isRenameable() {
+    return false;
+  }
 }

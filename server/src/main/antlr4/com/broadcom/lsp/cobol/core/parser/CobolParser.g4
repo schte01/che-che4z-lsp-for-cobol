@@ -502,7 +502,7 @@ dataDescriptionEntryFormat2
    ;
 
 dataDescriptionEntryFormat1Level77
-   : LEVEL_NUMBER_77 dataName1 (dataPictureClause | dataRedefinesClause | dataIntegerStringClause | dataExternalClause
+   : LEVEL_NUMBER_77 (FILLER | dataName1)? (dataPictureClause | dataRedefinesClause | dataIntegerStringClause | dataExternalClause
    | dataGlobalClause | dataTypeDefClause | dataThreadLocalClause | dataCommonOwnLocalClause | dataTypeClause
    | dataUsingClause | dataUsageClause | dataValueClause | dataReceivedByClause | dataOccursClause | dataSignClause
    | dataSynchronizedClause | dataJustifiedClause | dataBlankWhenZeroClause | dataWithLowerBoundsClause
@@ -582,7 +582,11 @@ dataRedefinesClause
    ;
 
 dataRenamesClause
-   : RENAMES qualifiedDataName ((THROUGH | THRU) qualifiedDataName)?
+   : RENAMES qualifiedDataName thruDataName?
+   ;
+
+thruDataName
+   : (THROUGH | THRU) qualifiedDataName
    ;
 
 dataSignClause
@@ -614,7 +618,11 @@ dataUsingClause
    ;
 
 dataValueClause
-   : ((VALUE | VALUES) (IS | ARE)?) dataValueInterval (COMMACHAR? dataValueInterval)*
+   : ((VALUE | VALUES) (IS | ARE)?) dataValueClauseLiteral
+   ;
+
+dataValueClauseLiteral
+   : dataValueInterval (COMMACHAR? dataValueInterval)*
    ;
 
 dataValueInterval

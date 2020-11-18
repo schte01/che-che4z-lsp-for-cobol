@@ -17,33 +17,27 @@ package com.broadcom.lsp.cobol.core.model.variables;
 
 import com.broadcom.lsp.cobol.core.model.Locality;
 import com.broadcom.lsp.cobol.core.preprocessor.delegates.util.VariableUtils;
-import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 /**
- * This value class represents a group item COBOL variable. Group elements can have nested
- * variables. They cannot have neither PIC nor VALUE clauses. Can be the top element of the
- * structure with level 01, as well as nested ones with higher level numbers.
+ * This value class represents a special name. They may substitute environment names in the
+ * SPECIAL-NAMES paragraph. They should are a special type of variable, allowed in certain
+ * statements.
  */
 @Value
-@EqualsAndHashCode(callSuper = true)
-public class GroupItem extends StructuredVariable {
-  private int number;
+public class SpecialName implements Variable {
   private String name;
   private String qualifier;
   private Locality definition;
 
-  public GroupItem(int number, String name, String qualifier, Locality definition) {
-    super(number);
-    this.number = number;
-    this.name = name;
-    this.qualifier = qualifier;
-    this.definition = definition;
+  @Override
+  public boolean isRenameable() {
+    return false;
   }
 
   @Override
   public Variable rename(String renameItemName) {
-    return new GroupItem(
-        number, name, VariableUtils.renameQualifier(qualifier, renameItemName), definition);
+    return new SpecialName(
+        name, VariableUtils.renameQualifier(qualifier, renameItemName), definition);
   }
 }
