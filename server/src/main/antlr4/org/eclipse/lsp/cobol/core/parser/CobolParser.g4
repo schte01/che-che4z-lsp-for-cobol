@@ -5,7 +5,9 @@
 * This software may be modified and distributed under the terms
 * of the MIT license. See the LICENSE file for details.
 */
-
+/* 3/24 - Added idms_only_words (moved from cobolWord in CICSParser) and idmsWord (created to be used where cobolWord was
+used previously). Changed appropriate places to use idmsWord.
+*/
 parser grammar CobolParser;
 options {tokenVocab = CobolLexer;  superClass = MessageServiceParser;}
 
@@ -374,7 +376,7 @@ protocolEntry
    ;
 
 modeClause
-   : MODE IS? dataName
+   : MODE IS? idmsWord
    ;
 
 ssNamesLengthParagraph
@@ -2344,25 +2346,50 @@ commentEntry
    ;
 
 idms_map_name
-    : T=dataName {validateLength($T.text, "map name", 8);}
+    : T=idmsWord {validateLength($T.text, "map name", 8);}
     ;
 
 idms_copy_entity_name
-    : T=dataName {validateLength($T.text, "copy entity name", 32);}
+    : T=idmsWord {validateLength($T.text, "copy entity name", 32);}
     ;
 
 idms_db_entity_name
-    : T=dataName {validateLength($T.text, "db entity name", 16);}
+    : T=idmsWord {validateLength($T.text, "db entity name", 16);}
     ;
 
 idms_procedure_name
-    : T=dataName {validateLength($T.text, "procedure name", 8);}
+    : T=idmsWord {validateLength($T.text, "procedure name", 8);}
     ;
 
 idms_schema_name
-    : T=dataName {validateLength($T.text, "schema name", 8);}
+    : T=idmsWord {validateLength($T.text, "schema name", 8);}
     ;
 
 idms_subschema_name
-    : T=dataName {validateLength($T.text, "subschema name", 8);}
+    : T=idmsWord {validateLength($T.text, "subschema name", 8);}
     ;
+
+idmsWord
+    : cobolWord | idms_only_words
+    ;
+
+idms_only_words
+    : CALC | DB_KEY | DBNAME | DICTNAME | DUPLICATE |
+      ENDPAGE | EXITS | FINISH | FIND |
+      IDMS | IDMS_CONTROL | IDMS_RECORDS | IGNORED | INVOKED |
+      LEVELS | LTERM  | LR |
+      MAPS | MAP_BINDS | MANUAL | MEMBERS | MODIFY |
+      NODENAME | OBTAIN |
+      PAGE_INFO | PERMANENT | PROTECTED | PTERM |
+      READY | RETRIEVAL | RUN_UNIT |
+      SCRATCH | SCREENSIZE |SELECTIVE | STORE |
+      SUBSCHEMA_AREANAMES | SUBSCHEMA_BINDS | SUBSCHEMA_CONTROL | SUBSCHEMA_CTRL | SUBSCHEMA_DESCRIPTION |
+      SUBSCHEMA_DML_LR_DESCRIPTION | SUBSCHEMA_LR_CONTROL | SUBSCHEMA_LR_CTRL | SUBSCHEMA_LR_DESCRIPTION |
+      SUBSCHEMA_LR_NAMES | SUBSCHEMA_LR_RECORDS |
+      SUBSCHEMA_NAMES | SUBSCHEMA_RECNAMES |
+      SUBSCHEMA_RECORDS | SUBSCHEMA_RECORD_BINDS |
+      SUBSCHEMA_SETNAMES | SUBSCHEMA_NAME |
+      SSNAMES | SYSVERSION |
+      USAGE_MODE |
+      WITHIN
+      ;

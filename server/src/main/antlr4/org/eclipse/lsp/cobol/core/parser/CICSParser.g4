@@ -11,8 +11,11 @@
  * Contributors:
  *   Broadcom, Inc. - initial API and implementation
  */
+ /* 3/24 - Changed to use CICSLexer instead of CICSParser. All non-IDMS keywords that were then getting implicit definitions (i.e. their
+ definitions not found) were moved to either CICSLexer (if only CICS used) or CommonCobolParser (if used by CICS and at
+ least one other parser). IDMS keywords referenced in cobolWord were moved to reference in CobolParser (idms_only_words). */
 parser grammar CICSParser;
-options {tokenVocab = CobolLexer; superClass = MessageServiceParser;}
+options {tokenVocab = CICSLexer; superClass = MessageServiceParser;}
 import Db2SqlParser;
 
 allCicsRules: cics_send | cics_receive | cics_add | cics_address | cics_allocate | cics_asktime | cics_assign | cics_bif |
@@ -930,27 +933,27 @@ cobolWord
    : IDENTIFIER | cics_only_words | db2sql_only_words
    | ABEND | ABORT | AS | ASCII | ASSOCIATED_DATA | ASSOCIATED_DATA_LENGTH | ATTACH
    | BINARY | BIND | BIT | BLOB | BOUNDS
-   | CALC | CAPABLE | CCSVERSION | CHANGE | CHANGED | CHANNEL | CHECK | CLOB | CLOSE_DISPOSITION | COBOL | CODE | COMMIT
+   | CAPABLE | CCSVERSION | CHANGE | CHANGED | CHANNEL | CHECK | CLOB | CLOSE_DISPOSITION | COBOL | CODE | COMMIT
    | COMMITMENT | CONNECT | CONVENTION | COUNT | CRUNCH | CURRENT | CURSOR
-   | DBCLOB | DBNAME | DBNODE | DB_KEY | DICTNAME | DICTNODE | DISCONNECT
+   | DBCLOB | DISCONNECT
    | DEFAULT | DEFAULT_DISPLAY | DEFINITION | DFHRESP | DFHVALUE | DISK | DOUBLE | DUMP | DUPLICATE
-   | EBCDIC | ENTER | ERASE | ESCAPE | EVENT | EXCLUSIVE | EXITS | EXTENDED | FIND | FINISH | FIRST
+   | EBCDIC | ENTER | ERASE | ESCAPE | EVENT | EXCLUSIVE | EXTENDED | FIRST
    | FUNCTION_POINTER | GET
-   | ID | IDMS | IGNORED | IMPLICIT | INTEGER | INVOKED | IN
+   | ID | IMPLICIT | INTEGER | IN
    | KEEP | KEPT | KEYBOARD
-   | LANGUAGE | LAST | LIBRARY | LIST | LOCAL | LONG_DATE | LONG_TIME | LOWER | LR | LTERM | MAP | MAPS
-   | MMDDYYYY | MAX | MEMBERS | MODIFY
+   | LANGUAGE | LAST | LIBRARY | LIST | LOCAL | LONG_DATE | LONG_TIME | LOWER | MAP
+   | MMDDYYYY | MAX
    | NAMED | NATIONAL | NATIONAL_EDITED | NETWORK | NEXT
-   | NODENAME | NODUMP | NOWAIT | NOWRITE | NUMERIC_DATE | NUMERIC_TIME
-   | OBTAIN | ODT | ORDERLY | OWN | OWNER |  OF | OBJECT | PAGE_INFO | PERMANENT | POINTER_32
-   | PASSWORD | PORT | PRINTER | PRIOR | PRIORITY | PROCEDURE | PROCESS | PROGRAM | PROTECTED | PTERM
-   | READER | READY | REAL | RECEIVED | RECURSIVE | REF | REMOTE | REMOVE | RETRIEVAL | ROLLBACK | RUN_UNIT
-   | SAVE | SCHEMA | SCRATCH | SCREENSIZE | SELECTIVE | SESSION | SHARED | SHORT_DATE | SQL | STATISTICS | STATS
-   | STORAGE | SYMBOL | SYSVERSION | SYSTEM
+   | NODUMP | NOWAIT | NOWRITE | NUMERIC_DATE | NUMERIC_TIME
+   | ODT | ORDERLY | OWN | OWNER |  OF | OBJECT | POINTER_32
+   | PASSWORD | PORT | PRINTER | PRIOR | PRIORITY | PROCEDURE | PROCESS | PROGRAM
+   | READER | REAL | RECEIVED | RECURSIVE | REF | REMOTE | REMOVE | ROLLBACK
+   | SAVE | SCHEMA | SESSION | SHARED | SHORT_DATE | SQL | STATISTICS | STATS
+   | STORAGE | SYMBOL | SYSTEM
    | TASK | THREAD | THREAD_LOCAL | TIMER | TODAYS_DATE | TODAYS_NAME | TRANSACTION | TRUNCATED | TYPEDEF
-   | UPDATE | USAGE_MODE | USER | UTF_8
+   | UPDATE | USER | UTF_8
    | VERSION | VIRTUAL
-   | WAIT | WITHIN
+   | WAIT
    | YEAR | YYYYMMDD | YYYYDDD
    ;
 
