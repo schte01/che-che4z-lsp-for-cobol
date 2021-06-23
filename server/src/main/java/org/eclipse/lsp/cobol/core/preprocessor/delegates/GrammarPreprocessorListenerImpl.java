@@ -133,6 +133,18 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   }
 
   @Override
+  public void enterCopyIdmsStatement(CopyIdmsStatementContext ctx) {
+    push();
+  }
+
+  @Override
+  public void exitCopyIdmsStatement(@NonNull CopyIdmsStatementContext ctx) {
+
+    collectAndAccumulateCopybookData(
+            ctx.copyIdmsOptions().copyIdmsSource().copySource(), retrieveCopybookStatementPosition(ctx), ctx.getSourceInterval());
+  }
+
+  @Override
   public void enterCopyStatement(@NonNull CopyStatementContext ctx) {
     push();
   }
@@ -327,7 +339,8 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
     return replacingService.applyReplacing(rawContent, replacePatterns);
   }
 
-  private CopybookModel getCopyBookContent(String copybookName, Locality locality, CopybookConfig copybookConfig) {
+  private CopybookModel getCopyBookContent(
+      String copybookName, Locality locality, CopybookConfig copybookConfig) {
 
     if (copybookName.isEmpty()) return emptyModel(copybookName);
 
@@ -336,8 +349,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
       return emptyModel(copybookName);
     }
 
-    CopybookModel copybook =
-        copybookService.resolve(copybookName, documentUri, copybookConfig);
+    CopybookModel copybook = copybookService.resolve(copybookName, documentUri, copybookConfig);
     if (copybook.getContent() == null) {
       reportMissingCopybooks(copybookName, locality);
       return emptyModel(copybookName);
@@ -345,7 +357,6 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
 
     return copybook;
   }
-
 
   private boolean hasRecursion(String copybookName) {
     return copybookStack.stream().map(CopybookUsage::getName).anyMatch(copybookName::equals);
