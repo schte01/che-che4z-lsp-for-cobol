@@ -67,7 +67,6 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
   private static final String SYNTAX_ERROR_CHECK_COPYBOOK_NAME =
       "Syntax error by GrammarPreprocessorListenerImpl#checkCopybookName: ";
   @Getter private final List<SyntaxError> errors = new ArrayList<>();
-
   private final Deque<StringBuilder> textAccumulator = new ArrayDeque<>();
   private final List<Pair<String, String>> copyReplacingClauses = new ArrayList<>();
   private final List<Pair<String, String>> replacingClauses;
@@ -142,6 +141,17 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
 
     collectAndAccumulateCopybookData(
             ctx.copyIdmsOptions().copyIdmsSource().copySource(), retrieveCopybookStatementPosition(ctx), ctx.getSourceInterval());
+  }
+
+  @Override
+  public void enterCopyMaidStatement(CopyMaidStatementContext ctx) {
+    push();
+  }
+
+  @Override
+  public void exitCopyMaidStatement(CopyMaidStatementContext ctx) {
+    collectAndAccumulateCopybookData(
+            ctx.copySource(), retrieveCopybookStatementPosition(ctx), ctx.getSourceInterval());
   }
 
   @Override
@@ -339,8 +349,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
     return replacingService.applyReplacing(rawContent, replacePatterns);
   }
 
-  private CopybookModel getCopyBookContent(
-      String copybookName, Locality locality, CopybookConfig copybookConfig) {
+  private CopybookModel getCopyBookContent(String copybookName, Locality locality, CopybookConfig copybookConfig) {
 
     if (copybookName.isEmpty()) return emptyModel(copybookName);
 
@@ -349,7 +358,8 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
       return emptyModel(copybookName);
     }
 
-    CopybookModel copybook = copybookService.resolve(copybookName, documentUri, copybookConfig);
+    CopybookModel copybook =
+        copybookService.resolve(copybookName, documentUri, copybookConfig);
     if (copybook.getContent() == null) {
       reportMissingCopybooks(copybookName, locality);
       return emptyModel(copybookName);
@@ -357,6 +367,7 @@ public class GrammarPreprocessorListenerImpl extends CobolPreprocessorBaseListen
 
     return copybook;
   }
+
 
   private boolean hasRecursion(String copybookName) {
     return copybookStack.stream().map(CopybookUsage::getName).anyMatch(copybookName::equals);

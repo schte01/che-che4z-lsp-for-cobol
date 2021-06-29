@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Broadcom.
+ * Copyright (c) 2021 Broadcom.
  * The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
  *
  * This program and the accompanying materials are made
@@ -17,25 +17,24 @@ package org.eclipse.lsp.cobol.usecases;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.eclipse.lsp.cobol.service.delegates.validations.SourceInfoLevels;
 import org.eclipse.lsp.cobol.usecases.engine.UseCaseEngine;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.junit.jupiter.api.Test;
 
-import static org.eclipse.lsp.cobol.service.delegates.validations.SourceInfoLevels.ERROR;
-
-/** This test checks that a variable definition with PIC cannot contain nested elements */
-class TestElementWithPICNotAllowedAsGroup {
+/** This test checks that unexpected text in ID DIVISION is flagged */
+class TestUnexpectedTextInIdentificationDivision {
 
   private static final String TEXT =
-      "       IDENTIFICATION DIVISION.\n"
-          + "       PROGRAM-ID. TEST1.\n"
-          + "       DATA DIVISION.\n"
-          + "       WORKING-STORAGE SECTION.\n"
-          + "       01  {$*PARENT} PIC 99.\n"
-          + "           10  {$*CHILD1|1} PIC 99.\n"
-          + "       PROCEDURE DIVISION. \n"
-          + "           MOVE 00 TO {CHILD1|2} OF PARENT.\n";
+      "       identification division.\n"
+          + "       program-id. test.\n"
+          + "       {DISPLAY|1} \"HELLO\".\n"
+          + "       data division.\n"
+          + "       working-storage section.\n"
+          + "       01 VARNAME PIC X(3) VALUE \"ABC\".\n"
+          + "       procedure division.\n"
+          + "           DISPLAY VARNAME.";
 
   @Test
   void test() {
@@ -46,14 +45,9 @@ class TestElementWithPICNotAllowedAsGroup {
             "1",
             new Diagnostic(
                 null,
-                "CHILD1: Only 01, 66 and 77 level numbers are allowed at the highest level",
+                "Syntax error on 'DISPLAY' expected {<EOF>, AUTHOR, CBL, DATE-COMPILED, DATE-WRITTEN,"
+                    + " IDENTIFICATION, INSTALLATION, REMARKS, DATA, END, ENVIRONMENT, ID, PROCEDURE, PROCESS, SECURITY}",
                 DiagnosticSeverity.Error,
-                ERROR.getText()),
-            "2",
-            new Diagnostic(
-                null,
-                "Variable CHILD1 is not defined",
-                DiagnosticSeverity.Error,
-                ERROR.getText())));
+                SourceInfoLevels.ERROR.getText())));
   }
 }

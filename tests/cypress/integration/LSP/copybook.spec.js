@@ -140,7 +140,7 @@ context('This is a Copybook spec', () => {
             expect(lineNumber).to.be.equal(52);
             cy.getLineByNumber(lineNumber).find('span').eq(-1).click().trigger('mousemove');
           });
-        cy.get('div.monaco-editor-hover-content').contains('Invalid definition for: USER-PHONE-MOBILE1');
+        cy.get('div.monaco-editor-hover-content').contains('Variable USER-PHONE-MOBILE1 is not defined');
       },
     );
   });
@@ -425,6 +425,62 @@ context('This is a Copybook spec', () => {
     it(['smoke'], 'specify copybooks outside the current workspace ./test/files', () => {
       setPathsLocalSetting('./test/files');
       copyBookNotFound();
+    });
+  });
+
+  describe('Fix loading copybooks with any encoding', () => {
+    const copyBookNotFound = (copybook) => {
+      return cy
+        .openFile('TEST.CBL')
+        .getLineByNumber(21)
+        .type(`           COPY ${copybook}.`)
+        .getCurrentLineErrors({ expectedLine: 21 })
+        .eq(0)
+        .getHoverErrorMessage()
+        .contains(`${copybook}: Copybook not found`);
+    };
+    afterEach(() => {
+      cy.closeFolder('.copybooks');
+    });
+
+    [
+      {
+        test: 'Fix loading copybooks with any encoding - EN',
+        input: 'TEST ME',
+      },
+      {
+        test: 'Fix loading copybooks with any encoding - UA',
+        input: 'Перевір мене',
+      },
+      {
+        test: 'Fix loading copybooks with any encoding - AM',
+        input: 'փորձիր ինձ',
+      },
+    ].forEach((parameters) => {
+      it(parameters.test, () => {
+        copyBookNotFound('UTF8');
+        cy.writeFile('test_files/project/testing/UTF8', `            MOVE "${parameters.input}" TO ABC.`, {
+          encoding: 'utf-8',
+        });
+        cy.getLineByNumber(21).findText('UTF8').click().type('{ctrl}{.}');
+        cy.get('.p-Widget.p-Menu').contains('Resolve copybook').click();
+        cy.goToLine(21);
+        cy.getCurrentLineErrors({ expectedLine: 21 })
+          .eq(0)
+          .getHoverErrorMessage()
+          .contains('Variable ABC is not defined');
+      });
+    });
+  });
+
+  describe('Load resource file', () => {
+    it(['smoke'], 'Checks loading of resource file', () => {
+      cy.openFile('RES.cbl');
+      cy.goToLine(6);
+      cy.getCurrentLineErrors({ expectedLine: 6 })
+        .eq(0)
+        .getHoverErrorMessage()
+        .contains("Syntax error on 'FILE-CONTROsL'");
     });
   });
 });

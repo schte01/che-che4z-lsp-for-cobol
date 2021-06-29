@@ -11,7 +11,7 @@ parser grammar CobolPreprocessor;
 options {tokenVocab = CobolPreprocessorLexer;}
 
 startRule
-   : .*? ((copyIdmsStatement | includeStatement | copyStatement | replaceAreaStart | replaceOffStatement )+ .*?)* EOF
+   : .*? ((includeStatement | copyStatement | copyIdmsStatement | copyMaidStatement | replaceAreaStart | replaceOffStatement )+ .*?)* EOF
    ;
 
 // copy statement
@@ -42,6 +42,10 @@ copyIdmsSource
 
 versionClause
     : VERSION integerLiteral
+    ;
+// copy maid statement
+copyMaidStatement
+    : LEVEL_NUMBER? COPY MAID copySource DOT_FS?
     ;
 
 copySource
@@ -114,7 +118,7 @@ charDataLine
    ;
 
 cobolWord
-   : COPYBOOK_IDENTIFIER | IDENTIFIER
+   : COPYBOOK_IDENTIFIER | IDENTIFIER | MAID
    ;
 
 literal
